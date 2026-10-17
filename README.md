@@ -8,7 +8,7 @@
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
 ![Platform: Windows](https://img.shields.io/badge/platform-Windows-0078D6)
 ![Runs offline](https://img.shields.io/badge/runs-offline%20by%20default-success)
-![Tests: 313](https://img.shields.io/badge/tests-313%20offline-brightgreen)
+![Tests: 314](https://img.shields.io/badge/tests-314%20offline-brightgreen)
 [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
 
 <img src="docs/screenshots/communion.png" alt="Cerberus desktop app: the Communion tab with the three heads, rite list and Thinking selector" width="85%">
@@ -29,7 +29,7 @@ This is a long-running solo project that is meant to be read as well as run. The
 - **A real safety model, tested.** Every tool has a risk level; anything that changes the PC needs a unanimous three-model vote plus user approval, with uncertainty counted as "no". Hard denylists (credentials, system folders, program folders, UNC and hidden-stream paths), an undo folder, a full audit log, SSRF-guarded web tools and a workspace guard are enforced in code, not in prompts.
 - **Network trust boundary.** Loopback is "local"; everything else is "remote" and needs a bearer token. `local_only` endpoints and PC tools are unreachable from a phone even with the token, and the tests assert it.
 - **Secrets handling.** API keys and tokens are sealed with Windows DPAPI, scrubbed from logs and API responses, and excluded from backups.
-- **Test discipline.** 313 offline tests (a fake Ollama and an isolated data folder per test, no GPU or network needed), ruff lint, and CI on GitHub Actions. Behaviours that must never regress, such as "a phone cannot reach the file tools", are pinned down by tests.
+- **Test discipline.** 314 offline tests (a fake Ollama and an isolated data folder per test, no GPU or network needed), ruff lint, and CI on GitHub Actions. Behaviours that must never regress, such as "a phone cannot reach the file tools", are pinned down by tests.
 - **Operational care.** Hardware guard (GPU/board temperature, memory and disk limits, resource-limited child processes), daily automatic backups with restore (secrets excluded), structured run log with a tuning report, and a plugin mechanism.
 - **Privacy by design.** The operator profile is a file outside the repository; the repo ships only a fictional example.
 
@@ -94,7 +94,7 @@ Cerberus ships with a fictional example profile. Drop your own `profile.json` in
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt -r requirements-dev.txt
 $env:PYTHONPATH = "."
-.\.venv\Scripts\python.exe -m unittest discover -s tests -t .    # 313 tests, no Ollama needed
+.\.venv\Scripts\python.exe -m unittest discover -s tests -t .    # 314 tests, no Ollama needed
 .\.venv\Scripts\python.exe -m ruff check .
 .\.venv\Scripts\python.exe main.py --smoke                       # open every tab and save screenshots
 ```

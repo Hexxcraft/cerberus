@@ -11,7 +11,7 @@ First public release. Includes a full pre-release audit: security hardening, dat
 - **Security:** wider path denylists, a workspace guard for file tools, SSRF and injection fixes, remote-origin restrictions on settings and PC tools, audit-log coverage.
 - **Reliability:** database and backup fixes, scheduler and Warden locking fixes, GUI polling guards (no overlapping polls, stale results discarded), safer window closing (process path re-checked before termination), startup retry for slow servers.
 - **Docs:** README rewritten; the detailed manual moved to `docs/USAGE.md`; added screenshots.
-- Tests grew to 313 offline tests; lint is clean.
+- Tests grew to 314 offline tests; lint is clean.
 
 ### Added
 - Three-head orchestration over local Ollama models (reasoner, generalist, editor) with six rites: Forge, Scribe, Seance, Tutor, Treasury, Hunt.

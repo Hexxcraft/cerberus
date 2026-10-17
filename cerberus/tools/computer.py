@@ -51,6 +51,10 @@ def _roaming_appdata() -> Path:
 
 
 def _norm(p: Path | str) -> str:
+    try:
+        p = Path(p).resolve()                      # 8.3 short names, junctions and symlinks must not dodge a denylist
+    except (OSError, RuntimeError, ValueError):
+        pass
     return os.path.normcase(str(p)).rstrip("\\/")
 
 

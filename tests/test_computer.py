@@ -1,6 +1,7 @@
 import os
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from cerberus import config
 from cerberus.core import Cerberus
@@ -171,6 +172,19 @@ class DenylistTests(ComputerBase):
         self.assertBlocked("pc_write", path=str(config.ROOT / "cerberus" / "safety.py"), content="x")
         self.assertBlocked("pc_delete", path=str(config.ROOT / "cerberus"))
         self.assertBlocked("pc_write", path=str(config.DATA_DIR / "plugins" / "evil.py"), content="x")
+
+    def test_data_folder_is_protected_under_any_spelling_of_its_path(self):
+        import ctypes
+        if os.name != "nt":
+            self.skipTest("8.3 short names are Windows-only")
+        long_dir = config.DATA_DIR.resolve()
+        buf = ctypes.create_unicode_buffer(1024)
+        if not ctypes.windll.kernel32.GetShortPathNameW(str(long_dir), buf, 1024) or buf.value.lower() == str(long_dir).lower():
+            self.skipTest("no distinct short path on this volume")
+        self.assertBlocked("pc_write", path=str(long_dir / "settings.json"), content="{}")
+        with mock.patch.object(config, "DATA_DIR", Path(buf.value)):
+            self.assertBlocked("pc_write", path=str(long_dir / "settings.json"), content="{}")
+            self.assertBlocked("pc_read", path=str(long_dir / "settings.json"))
 
     def test_secret_files_and_folders(self):
         home = Path.home()
