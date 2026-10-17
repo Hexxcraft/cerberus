@@ -1,0 +1,39 @@
+name: Release
+
+# Builds the standalone Windows app (no Python needed) and attaches it to a GitHub release.
+# Trigger: push a tag such as v1.0.0, or run it by hand from the Actions tab.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt -r requirements-dev.txt
+      - name: Build Cerberus.exe
+        shell: powershell
+        run: powershell -ExecutionPolicy Bypass -File scripts\build_exe.ps1 -NoShortcut -Python python
+      - name: Zip the app folder
+        shell: powershell
+        run: Compress-Archive -Path dist\Cerberus -DestinationPath Cerberus-windows.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Cerberus-windows
+          path: Cerberus-windows.zip
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Cerberus-windows.zip
+          generate_release_notes: true

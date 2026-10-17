@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "name": "Alex Example",
+  "plain_name": "Alex",
+  "honorifics": ["Boss", "Chief", "Captain", "Commander", "Maverick", "Ace", "Champ", "Skipper", "Big Cheese", "Your Excellency"],
+  "facts": [
+    ["name", "Alex Example", "identity"],
+    ["current_job", "Junior systems administrator at a small company", "work"],
+    ["career_goal", "move into DevOps and platform engineering", "goal"],
+    ["builds", "small Python tools, home-lab automation, a personal website", "skill"],
+    ["trait_blunt", "wants friction, accountability and blunt honesty; dislikes yes-men and coddling", "trait"],
+    ["hobbies", "reading, lifting, painting tabletop minis, tinkering with old hardware", "interest"],
+    ["learning_now", "Kubernetes, Terraform and Linux administration", "goal"],
+    ["fitness_goal", "squat bodyweight for reps; three lifting sessions a week", "goal"],
+    ["diet", "meal-preps lunches on Sundays; high protein, no fuss", "preference"],
+    ["reading_list", "history, systems thinking, science fiction", "interest"],
+    ["side_project", "a self-hosted dashboard for home-lab status", "project"],
+    ["setup", "Windows desktop with a mid-range GPU, a small NAS in a closet", "environment"],
+    ["sleep_goal", "asleep by 22:30 on weeknights", "habit"],
+    ["rhythm_morning", "06:30 Morning Forge: short workout, breakfast, plan the day", "habit"],
+    ["rhythm_workday", "09:00-17:00 the day job", "habit"],
+    ["rhythm_evening", "17:00 Mind & Soul Pass: decompress, study, make something; 20:00 Reading Hour", "habit"],
+    ["rhythm_blackout", "weekday screen blackout 22:00-05:00; wants to be told to go to sleep", "habit"]
+  ],
+  "dossier": "# Operator profile (example)\n\nThis is the built-in example profile. Cerberus ships with it so a fresh clone works out of the box and so no personal data is ever published.\n\nTo make Cerberus yours, copy this file to `profile.json` in your Cerberus data folder (`%LOCALAPPDATA%\\Cerberus`, shown in the Gates tab), edit it, and restart. See docs/PROFILE.md.\n\n- Name: Alex Example\n- Work: junior systems administrator, aiming at DevOps\n- Communication: direct, blunt, a little dry humour; no flattery\n",
+  "voice": [
+    "Be their companion and constructive rival: direct, a little dry, with real loyalty and respect.",
+    "Keep chat replies to 1-2 punchy sentences unless they ask for a deep-dive, document, code or architecture breakdown.",
+    "Never coddle or flatter. Challenge weak premises and excuses, point out blind spots, push them to execute."
+  ],
+  "goals": [["BODY", "develop your body: work out"], ["MIND", "develop your mind: study"], ["SOUL", "develop your soul: make something of your own"]],
+  "goal_words": [],
+  "core_fact_keys": ["name", "current_job", "career_goal", "trait_blunt"]
+}

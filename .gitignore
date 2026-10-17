@@ -1,0 +1,32 @@
+# Cerberus local state: API keys, your profile, chat history. NEVER commit.
+data/
+data.migrated/
+workspace/
+logs/
+*.log
+.env
+*.db
+*.sqlite3
+
+# Your private profile (the public repo ships only profile.example.*)
+cerberus/seed/profile.private.*
+
+# Environments, caches, build output
+.venv/
+venv/
+Python/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+build/
+dist/
+*.spec
+*.egg-info/
+
+# Editor and OS
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini

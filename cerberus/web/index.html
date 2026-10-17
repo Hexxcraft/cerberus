@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b0709">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<title>Cerberus</title>
+<style>
+  @font-face { font-family: "Cinzel Decorative"; src: url("/fonts/CinzelDecorative-Bold.ttf"); }
+  @font-face { font-family: "IM Fell"; src: url("/fonts/IMFeENrm28P.ttf"); }
+  @font-face { font-family: "Unifraktur"; src: url("/fonts/UnifrakturCook-Bold.ttf"); }
+  :root { --bg:#0b0709; --panel:#16101a; --edge:#4a1a22; --blood:#a3151f; --gold:#c9a24a; --text:#e8dfd0; --dim:#8d8294; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:radial-gradient(circle at 50% -10%, #2a0d14 0, var(--bg) 55%); color:var(--text);
+         font-family:"IM Fell", Georgia, serif; font-size:18px; min-height:100vh; display:flex; flex-direction:column; }
+  header { text-align:center; padding:14px 10px 4px; }
+  h1 { font-family:"Unifraktur", serif; color:var(--blood); font-size:44px; margin:0; text-shadow:0 0 18px #a3151f88; }
+  .sub { color:var(--dim); font-size:14px; letter-spacing:.2em; text-transform:uppercase; }
+  .bar { display:flex; gap:8px; padding:8px 12px; flex-wrap:wrap; justify-content:center; }
+  select, input, textarea, button { background:var(--panel); color:var(--text); border:1px solid var(--edge); border-radius:6px;
+         padding:9px 11px; font:inherit; }
+  button { cursor:pointer; font-family:"Cinzel Decorative", serif; font-size:14px; color:var(--gold); }
+  button:hover { border-color:var(--blood); }
+  button.go { background:#4a0f16; }
+  #log { flex:1; overflow-y:auto; padding:10px 14px; display:flex; flex-direction:column; gap:12px; max-width:900px; width:100%; margin:0 auto; }
+  .msg { padding:10px 14px; border-radius:8px; white-space:pre-wrap; word-wrap:break-word; border:1px solid var(--edge); background:var(--panel); }
+  .me { align-self:flex-end; border-color:#6b5a2a; }
+  .stage { color:var(--dim); font-size:15px; font-style:italic; }
+  .err { color:#ff7b7b; }
+  #confirm { max-width:900px; margin:0 auto; width:100%; padding:0 14px; }
+  .ask { border:1px solid var(--blood); background:#2a0a10; padding:10px; border-radius:8px; margin-bottom:8px; }
+  form { display:flex; gap:8px; padding:10px 12px 18px; max-width:900px; width:100%; margin:0 auto; }
+  textarea { flex:1; resize:none; height:56px; }
+  #tokenbox { display:none; text-align:center; padding:10px; }
+</style>
+</head>
+<body>
+<header><h1>Cerberus</h1><div class="sub">the three-headed guardian</div></header>
+<div id="tokenbox">API token (from the PC running Cerberus): <input id="token" type="password" size="28"> <button id="savetok">Save</button></div>
+<div class="bar">
+  <select id="mode"></select>
+  <select id="think" title="How carefully the three heads check each other's work">
+    <option value="quick">Quick</option><option value="careful" selected>Careful</option><option value="meticulous">Meticulous</option>
+  </select>
+  <label><input type="checkbox" id="act"> let Cerberus act</label>
+  <label title="Show the stages, council notes and other behind-the-scenes steps"><input type="checkbox" id="work"> show the workings</label>
+  <button id="stop" type="button">Stop</button>
+  <button id="alerts" type="button" title="Notifications from Cerberus">Alerts</button>
+</div>
+<div id="confirm"></div>
+<div id="log"></div>
+<form id="f"><textarea id="q" placeholder="Speak..." autofocus></textarea><button class="go" type="submit">Send</button></form>
+<script>
+const $ = id => document.getElementById(id);
+let runId = null, busy = false;
+const headers = () => ({"Content-Type":"application/json", "X-Cerberus-Token": localStorage.getItem("cerberus_token") || ""});
+async function api(path, opts={}) {
+  const r = await fetch("/api" + path, {...opts, headers: {...headers(), ...(opts.headers||{})}});
+  if (r.status === 401) { $("tokenbox").style.display = "block"; throw new Error("Token needed"); }
+  if (!r.ok) throw new Error((await r.json().catch(()=>({}))).detail || r.statusText);
+  return r;
+}
+function add(cls, text) { const d = document.createElement("div"); d.className = "msg " + cls; d.textContent = text;
+  $("log").appendChild(d); $("log").scrollTop = 1e9; return d; }
+$("savetok").onclick = () => { localStorage.setItem("cerberus_token", $("token").value.trim()); location.reload(); };
+async function init() {
+  try {
+    const modes = await (await api("/modes")).json();
+    $("mode").replaceChildren(...modes.map(m => { const o = document.createElement("option"); o.value = m.key; o.textContent = m.label; return o; }));
+    $("mode").value = localStorage.getItem("cerberus_mode") || "conversation";
+    $("think").value = localStorage.getItem("cerberus_think") || "careful";
+    loadHistory();
+  } catch (e) { add("err", String(e)); }
+}
+async function loadHistory() {
+  $("log").innerHTML = "";
+  const rows = await (await api("/history?mode=" + $("mode").value + "&limit=12")).json();
+  rows.forEach(r => add(r.role === "user" ? "me" : "", r.content));
+}
+$("mode").onchange = () => { localStorage.setItem("cerberus_mode", $("mode").value); loadHistory(); };
+$("think").onchange = () => localStorage.setItem("cerberus_think", $("think").value);
+const workings = () => $("work").checked;
+$("work").checked = localStorage.getItem("cerberus_workings") === "1";
+$("work").onchange = () => localStorage.setItem("cerberus_workings", workings() ? "1" : "0");
+$("stop").onclick = () => { if (runId) api("/chat/" + runId + "/cancel", {method:"POST"}); };
+$("q").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("f").requestSubmit(); } });
+$("f").onsubmit = async e => {
+  e.preventDefault();
+  const message = $("q").value.trim(); if (!message || busy) return;
+  $("q").value = ""; busy = true; add("me", message);
+  let bubble = null, status = add("stage", "...");
+  try {
+    const r = await api("/chat", {method:"POST", body: JSON.stringify({message, mode: $("mode").value, options: {allow_actions: $("act").checked, thinking: $("think").value}})});
+    const reader = r.body.getReader(), dec = new TextDecoder(); let buf = "";
+    for (;;) {
+      const {value, done} = await reader.read(); if (done) break;
+      buf += dec.decode(value, {stream:true});
+      let i; while ((i = buf.indexOf("\n")) >= 0) {
+        const ln = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
+        if (!ln) continue;
+        const ev = JSON.parse(ln);
+        if (ev.type === "run") runId = ev.id;
+        else if (ev.type === "stage_start") status.textContent = workings() ? ev.title + " is speaking (" + (ev.model||"") + ")..." : "Cerberus is thinking...";
+        else if (ev.type === "tool_call") status.textContent = workings() ? "Using " + ev.name + "..." : "Cerberus is working on it...";
+        else if (ev.type === "cloud_start") status.textContent = workings() ? "Handing off to " + ev.provider + " (" + ev.sent_tokens + " tokens)..." : "Asking the cloud model...";
+        else if (ev.type === "cloud_error") { if (workings()) add("err", ev.message); }
+        else if (ev.type === "council") {
+          if (!workings()) status.textContent = "Cerberus is checking the answer...";
+          else if (ev.phase === "found") add("err", ev.message);
+          else if (ev.phase === "clean") add("stage", ev.message);
+          else status.textContent = ev.message;
+        }
+        else if (ev.type === "final") bubble = add("", ev.text);
+        else if (ev.type === "error") add("err", ev.message);
+        else if (ev.type === "cancelled") add("stage", "(stopped)");
+      }
+    }
+  } catch (err) { add("err", String(err)); }
+  status.remove(); busy = false; runId = null;
+};
+async function pollConfirm() {
+  try {
+    const s = await (await api("/safety")).json();
+    $("confirm").innerHTML = "";
+    s.pending.forEach(p => {
+      const d = document.createElement("div"); d.className = "ask";
+      const head = document.createElement("b"); head.textContent = String(p.risk).toUpperCase();
+      d.appendChild(head); d.appendChild(document.createTextNode(": " + p.summary)); d.appendChild(document.createElement("br"));
+      for (const [label, ok] of [["Approve", true], ["Deny", false]]) {
+        const b = document.createElement("button"); b.textContent = label;
+        b.onclick = () => api("/safety/confirm/" + p.id, {method:"POST", body: JSON.stringify({approve: ok})}); d.appendChild(b);
+      }
+      $("confirm").appendChild(d);
+    });
+  } catch (e) {}
+  setTimeout(pollConfirm, 2000);
+}
+/* ---- installable app + notifications.
+   Service workers and system notifications only exist in a secure context (https or localhost). Over plain http on the
+   home network the page still works and still shows Cerberus's messages inside the page (plus a vibration). */
+let swReg = null;
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").then(r => { swReg = r; }).catch(() => {});
+const canNotify = () => "Notification" in window && window.isSecureContext;
+function refreshAlertsButton() {
+  $("alerts").textContent = canNotify() && Notification.permission === "granted" ? "Alerts: on" : "Alerts";
+}
+$("alerts").onclick = async () => {
+  if (!canNotify()) { add("stage", "System notifications need https (or opening Cerberus on the PC itself). Messages will still appear here while this page is open."); return; }
+  if (Notification.permission !== "granted") await Notification.requestPermission();
+  refreshAlertsButton();
+  if (Notification.permission === "granted") shout("Cerberus", "Notifications are on.");
+};
+function shout(title, body) {
+  add("stage", title + "\n" + body);
+  if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+  if (canNotify() && Notification.permission === "granted") {
+    const opts = {body, icon: "/icon-192.png", tag: "cerberus"};
+    if (swReg) swReg.showNotification(title, opts); else new Notification(title, opts);
+  }
+}
+async function pollNotes() {
+  try {
+    let cursor = localStorage.getItem("cerberus_note_cursor");
+    if (cursor === null) {                                   // first visit: start from now, do not replay the past
+      const last = await (await api("/notifications?limit=1")).json();
+      cursor = last.length ? last[0].id : 0;
+    } else {
+      const rows = await (await api("/notifications?after=" + cursor + "&limit=20")).json();
+      rows.forEach(n => { shout(n.title, n.body); cursor = n.id; });
+    }
+    localStorage.setItem("cerberus_note_cursor", String(cursor));
+  } catch (e) {}
+  setTimeout(pollNotes, 30000);
+}
+refreshAlertsButton();
+init(); pollConfirm(); pollNotes();
+</script>
+</body>
+</html>

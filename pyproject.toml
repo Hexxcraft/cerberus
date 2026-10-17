@@ -1,0 +1,16 @@
+[project]
+name = "cerberus"
+version = "1.0.0"
+description = "A local, three-headed AI orchestrator: three Ollama models check each other's work, with consent-gated control of your PC."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+# Runtime dependencies live in requirements.txt (this is an application, not a library).
+
+[tool.ruff]
+line-length = 140
+target-version = "py311"
+extend-exclude = [".venv", "Python", "build", "dist", "data.migrated", "workspace"]
+
+[tool.ruff.lint]
+select = ["E9", "F", "B006", "B008", "B012", "B015", "B018"]

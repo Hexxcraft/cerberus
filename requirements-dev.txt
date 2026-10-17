@@ -1,0 +1,4 @@
+# Development tools: tests, lint, standalone build. Install with:  pip install -r requirements.txt -r requirements-dev.txt
+httpx>=0.27        # FastAPI TestClient needs it
+ruff>=0.6
+pyinstaller>=6.0   # only for scripts/build_exe.ps1
