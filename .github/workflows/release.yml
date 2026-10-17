@@ -27,7 +27,7 @@ jobs:
       - name: Zip the app folder
         shell: powershell
         run: Compress-Archive -Path dist\Cerberus -DestinationPath Cerberus-windows.zip
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: Cerberus-windows
           path: Cerberus-windows.zip
