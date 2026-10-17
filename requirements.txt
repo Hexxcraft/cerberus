@@ -6,7 +6,7 @@ beautifulsoup4>=4.12
 customtkinter>=5.2
 pyautogui>=0.9.54
 apscheduler>=3.10,<4   # schedules the agents
-pillow>=10.0
+pillow>=12.3.0
 python-docx>=1.1,<2.0  # Resume Studio: tailored resumes as Word files (optional; falls back to .txt)
 # Optional: only needed to run the test-suite (python -m unittest works without it)
 # httpx
