@@ -1,5 +1,5 @@
 # Cerberus - Python dependencies (all have prebuilt Windows wheels; no C compiler needed)
-fastapi>=0.110
+fastapi>=0.143.1
 uvicorn>=0.29          # plain uvicorn (NOT uvicorn[standard], which needs a C compiler on new Pythons)
 requests>=2.31
 beautifulsoup4>=4.12
